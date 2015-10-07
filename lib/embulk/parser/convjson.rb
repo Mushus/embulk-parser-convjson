@@ -49,7 +49,8 @@ p "here"
                     name = column['name'];
                     exp = column['exp'];
                     type = column['type'];
-                    convert_type(evaluate_exp(json, key, value, index, exp), type)
+					format = person['format']? ? column['format']: nil;
+                    convert_type(evaluate_exp(json, key, value, index, exp), type, format)
                 end
             end
 
@@ -70,7 +71,7 @@ p "here"
             end
 
             # valをtype型に変換する
-            def convert_type(val, type)
+            def convert_type(val, type, format)
                 case type
                 when "string"
                     val
@@ -81,7 +82,7 @@ p "here"
                 when "boolean"
                     ["yes", "true", "1"].include?(val.downcase)
                 when "timestamp"
-                    val.empty? ? nil : Time.strptime(val, c["format"])
+                    val.empty? ? nil : Time.strptime(val, format)
                 else
                     raise "Unsupported type #{type}"
                 end
