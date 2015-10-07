@@ -16,7 +16,7 @@ module Embulk
                 columns = task[:schema].each_with_index.map do |column, index|
                     Column.new(index, column["name"], column["type"].to_sym)
                 end
-
+p "here"
 				yield(task, columns)
 			end
 
@@ -28,37 +28,38 @@ module Embulk
                     case foreach.class.to_s
                     when "Array"
                         foreach.each_with_index.map do |column, index|
-                            @page_builder.add(make_record(json, index, column))
+                            @page_builder.add(make_record(json, index, column, index))
                         end
                     when "Hash"
-                        foreach.each {|key, index|
-                            @page_builder.add(make_record(json, index, column))
-                        }
+                        foreach.each_with_index do |(key, value), index|
+                            @page_builder.add(make_record(json, index, value, index))
+                        end
                     else
                         p "here"
-                        @page_builder.add(make_record(json, nil, nil))
+                        @page_builder.add(make_record(json, nil, nil, nil))
                     end
                 end
 				page_builder.finish
 			end
 
             # レコードを作成
-            def make_record(json, key, value)
+            def make_record(json, key, value, index)
                 schema = @task["schema"]
                 schema.each_with_index.map do |column|
                     name = column['name'];
                     exp = column['exp'];
                     type = column['type'];
-                    convert_type(evaluate_exp(json, key, value, exp), type)
+                    convert_type(evaluate_exp(json, key, value, index, exp), type)
                 end
             end
 
             # 式を評価する
-            def evaluate_exp(data, _key, _value, exp)
+            def evaluate_exp(data, _key, _value, _index, exp)
                 # eval 内で json を使えるように
                 json = data
                 key = _key
                 value = _value
+				index = _index
                 eval(exp)
             end
 
