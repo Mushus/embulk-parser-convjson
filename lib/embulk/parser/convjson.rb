@@ -13,11 +13,11 @@ module Embulk
 					:schema => config.param("schema", :array, default: nil)
 				}
 
-			# レコードのカラム(詳細は schema 定義に従う)
-			columns = task[:schema].each_with_index.map do |column, index|
-				Column.new(index, column["name"], column["type"].to_sym)
-			end
-				yield(task, columns)
+				# レコードのカラム(詳細は schema 定義に従う)
+				columns = task[:schema].each_with_index.map do |column, index|
+					Column.new(index, column["name"], column["type"].to_sym)
+				end
+					yield(task, columns)
 			end
 
 			def init
@@ -52,35 +52,35 @@ module Embulk
 
 			private
 
-		# レコードを作成
-		def make_record(json, key, value, index)
-			@schema.each_with_index.map do |column|
-				name = column["name"]
-				exp = column["exp"]
-				type = column["type"]
-					format = column["format"]
-				convert_type(evaluate_exp(json, key, value, index, exp), type, format)
+			# レコードを作成
+			def make_record(json, key, value, index)
+				@schema.each_with_index.map do |column|
+					name = column["name"]
+					exp = column["exp"]
+					type = column["type"]
+						format = column["format"]
+					convert_type(evaluate_exp(json, key, value, index, exp), type, format)
+				end
 			end
-		end
 
-		# 式を評価する
-		def evaluate_exp(data, _key, _value, _index, exp)
-			# eval 内で json を使えるように
-			json = data
-			key = _key
-			value = _value
-				index = _index
-			eval(exp)
-		end
+			# 式を評価する
+			def evaluate_exp(data, _key, _value, _index, exp)
+				# eval 内で json を使えるように
+				json = data
+				key = _key
+				value = _value
+					index = _index
+				eval(exp)
+			end
 
-		# foreachの式を評価する
-		def evaluate_foreach(data, exp)
-			json = data
-			eval(exp)
-		end
+			# foreachの式を評価する
+			def evaluate_foreach(data, exp)
+				json = data
+				eval(exp)
+			end
 
-		# valをtype型に変換する
-		def convert_type(val, type, format)
+			# valをtype型に変換する
+			def convert_type(val, type, format)
 				if val.class.to_s == type then
 					val
 				else
@@ -99,7 +99,7 @@ module Embulk
 						raise "Unsupported type #{type}"
 					end
 				end
-		end
+			end
 
 		end
 	end
