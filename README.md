@@ -1,6 +1,6 @@
 # Singlejson parser plugin for Embulk
 
-This is convinience parser for Embulk.
+This is convinience JSON parser for Embulk.
 
 ## Overview
 
